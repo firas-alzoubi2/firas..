@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Trip Management - Smart Transport{% endblock %}
+
+{% block content %}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-map me-2"></i>Trip Management</h1>
+    <a href="{% url 'core:trip_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Create Trip
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control" placeholder="Search by trip name, location" value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Upcoming" {% if status_filter == 'Upcoming' %}selected{% endif %}>Upcoming</option>
+                    <option value="Ongoing" {% if status_filter == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                    <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Trips Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Trip</th>
+                    <th>Route</th>
+                    <th>Schedule</th>
+                    <th>Driver</th>
+                    <th>Seats</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trip in trips %}
+                <tr>
+                    <td><strong>{{ trip.trip_name }}</strong></td>
+                    <td>
+                        {{ trip.start_location|truncatechars:15 }} → {{ trip.end_location|truncatechars:15 }}
+                    </td>
+                    <td>
+                        {{ trip.departure_time|date:"M d, H:i" }}
+                        <br><small class="text-muted">{{ trip.arrival_time|date:"M d, H:i" }}</small>
+                    </td>
+                    <td>
+                        {% if trip.driver %}
+                        {{ trip.driver.user.username }}
+                        {% else %}
+                        <span class="text-muted">Not assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ trip.available_seats }}</td>
+                    <td>${{ trip.price }}</td>
+                    <td>
+                        <span class="badge status-{{ trip.status|lower }}">{{ trip.status }}</span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'core:trip_edit' trip.id %}" class="btn btn-outline-primary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if trip.status != 'Cancelled' and trip.status != 'Completed' %}
+                            <a href="{% url 'core:trip_cancel' trip.id %}" class="btn btn-outline-danger" title="Cancel">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">No trips found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if trips.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if trips.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ trips.previous_page_number }}&q={{ query }}&status={{ status_filter }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in trips.paginator.page_range %}
+        <li class="page-item {% if trips.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&status={{ status_filter }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if trips.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ trips.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-people me-2"></i>User Management</h1>
+    <a href="{% url 'core:user_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i>Add User
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control" placeholder="Search by username, email, or phone" value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="type" class="form-select">
+                    <option value="">All User Types</option>
+                    <option value="Administrator" {% if user_type == 'Administrator' %}selected{% endif %}>Administrator</option>
+                    <option value="Driver" {% if user_type == 'Driver' %}selected{% endif %}>Driver</option>
+                    <option value="Passenger" {% if user_type == 'Passenger' %}selected{% endif %}>Passenger</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.phone|default:"-" }}</td>
+                    <td><span class="badge bg-secondary">{{ u.get_user_type_display }}</span></td>
+                    <td>
+                        {% if u.is_active %}
+                        <span class="badge status-active">Active</span>
+                        {% else %}
+                        <span class="badge status-disabled">Disabled</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'core:user_edit' u.id %}" class="btn btn-outline-primary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'core:user_status' u.id %}" class="btn btn-outline-warning" title="Change Status">
+                                <i class="bi bi-toggle-on"></i>
+                            </a>
+                            <a href="{% url 'core:user_delete' u.id %}" class="btn btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No users found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if users.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if users.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ users.previous_page_number }}&q={{ query }}&type={{ user_type }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in users.paginator.page_range %}
+        <li class="page-item {% if users.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&type={{ user_type }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if users.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ users.next_page_number }}&q={{ query }}&type={{ user_type }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

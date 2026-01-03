@@ -1,0 +1,430 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Smart Transport{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #64748b;
+        --success-color: #22c55e;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8fafc;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        color: var(--primary-color) !important;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        width: 250px;
+      }
+
+      .sidebar-sticky {
+        position: relative;
+        top: 0;
+        height: calc(100vh - 56px);
+        padding-top: 0.5rem;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.75rem 1rem;
+        margin: 0.125rem 0.5rem;
+        border-radius: 0.5rem;
+      }
+
+      .sidebar .nav-link:hover {
+        background-color: #f1f5f9;
+        color: var(--primary-color);
+      }
+
+      .sidebar .nav-link.active {
+        background-color: #e0e7ff;
+        color: var(--primary-color);
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 0.5rem;
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 2rem;
+        margin-top: 56px;
+      }
+
+      .card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+      }
+
+      .stat-card {
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .stat-card.success {
+        border-left-color: var(--success-color);
+      }
+
+      .stat-card.warning {
+        border-left-color: var(--warning-color);
+      }
+
+      .stat-card.danger {
+        border-left-color: var(--danger-color);
+      }
+
+      .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      .stat-card .stat-label {
+        color: var(--secondary-color);
+        font-size: 0.875rem;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+      }
+
+      .btn-primary:hover {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+      }
+
+      .table th {
+        font-weight: 600;
+        color: #475569;
+        background-color: #f8fafc;
+      }
+
+      .badge {
+        font-weight: 500;
+        padding: 0.5em 0.75em;
+      }
+
+      .page-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .auth-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .rating-stars {
+        color: #f59e0b;
+      }
+
+      .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25em 0.5em;
+        border-radius: 0.25rem;
+      }
+
+      .status-upcoming {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .status-ongoing {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      .status-completed {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+      .status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .status-active {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+      .status-disabled {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .status-available {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          position: relative;
+          top: 0;
+          height: auto;
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    {% if user.is_authenticated %}
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'core:dashboard' %}">
+          <i class="bi bi-bus-front me-2"></i>Smart Transport
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <span class="dropdown-item-text text-muted small"
+                    >{{ user.get_user_type_display }}</span
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'core:profile' %}"
+                    ><i class="bi bi-person me-2"></i>Profile</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{% url 'core:change_password' %}"
+                    ><i class="bi bi-key me-2"></i>Change Password</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="{% url 'core:logout' %}"
+                    ><i class="bi bi-box-arrow-right me-2"></i>Logout</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav class="sidebar d-none d-md-block">
+      <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a
+              class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+              href="{% url 'core:dashboard' %}"
+            >
+              <i class="bi bi-speedometer2"></i>Dashboard
+            </a>
+          </li>
+
+          {% if user.is_admin %}
+          <!-- Admin Menu -->
+          <li class="nav-item mt-3">
+            <span class="nav-link text-muted small text-uppercase"
+              >Administration</span
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'user_' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:user_list' %}"
+            >
+              <i class="bi bi-people"></i>Users
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'driver_' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:driver_list' %}"
+            >
+              <i class="bi bi-person-badge"></i>Drivers
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'vehicle_' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:vehicle_list' %}"
+            >
+              <i class="bi bi-truck"></i>Vehicles
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'trip_' in request.resolver_match.url_name and 'admin' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:trip_list_admin' %}"
+            >
+              <i class="bi bi-map"></i>Trips
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'admin_logs' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:admin_logs' %}"
+            >
+              <i class="bi bi-journal-text"></i>Activity Logs
+            </a>
+          </li>
+          {% endif %} {% if user.is_driver %}
+          <!-- Driver Menu -->
+          <li class="nav-item mt-3">
+            <span class="nav-link text-muted small text-uppercase">Driver</span>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'driver_trip' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:driver_trips' %}"
+            >
+              <i class="bi bi-calendar-event"></i>My Trips
+            </a>
+          </li>
+          {% endif %} {% if user.is_passenger %}
+          <!-- Passenger Menu -->
+          <li class="nav-item mt-3">
+            <span class="nav-link text-muted small text-uppercase">Trips</span>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'trip_search' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:trip_search' %}"
+            >
+              <i class="bi bi-search"></i>Find Trips
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'my_bookings' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:my_bookings' %}"
+            >
+              <i class="bi bi-ticket-perforated"></i>My Bookings
+            </a>
+          </li>
+          {% endif %}
+
+          <li class="nav-item mt-3">
+            <span class="nav-link text-muted small text-uppercase"
+              >Schedule</span
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if 'trip_schedule' in request.resolver_match.url_name %}active{% endif %}"
+              href="{% url 'core:trip_schedule' %}"
+            >
+              <i class="bi bi-calendar3"></i>Trip Schedule
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      {% if messages %}
+      <div class="messages mb-3">
+        {% for message in messages %}
+        <div
+          class="alert {{ message.tags }} alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% block content %}{% endblock %}
+    </main>
+    {% else %} {% block auth_content %}{% endblock %} {% endif %}
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

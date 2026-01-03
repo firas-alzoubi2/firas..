@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Trip Details - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-geo-alt me-2"></i>Trip Details</h1>
+  <a href="{% url 'core:driver_trips' %}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i> Back to Trips
+  </a>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Trip Info Card -->
+    <div class="card mb-4">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">Trip Information</h5>
+        {% if trip.status == 'Upcoming' %}
+        <span class="badge bg-info">Upcoming</span>
+        {% elif trip.status == 'Ongoing' %}
+        <span class="badge bg-success">Ongoing</span>
+        {% elif trip.status == 'Completed' %}
+        <span class="badge bg-secondary">Completed</span>
+        {% else %}
+        <span class="badge bg-danger">Cancelled</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h4 class="text-primary">{{ trip.origin }}</h4>
+            <p class="text-muted mb-0">Origin</p>
+          </div>
+          <div class="col-md-6">
+            <h4 class="text-success">{{ trip.destination }}</h4>
+            <p class="text-muted mb-0">Destination</p>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-2">
+              <i class="bi bi-calendar me-2"></i>
+              <strong>Date:</strong> {{ trip.scheduled_date|date:"l, F d, Y" }}
+            </p>
+            <p class="mb-2">
+              <i class="bi bi-clock me-2"></i>
+              <strong>Departure:</strong> {{ trip.departure_time|time:"g:i A" }}
+            </p>
+            <p class="mb-2">
+              <i class="bi bi-clock-fill me-2"></i>
+              <strong>Arrival:</strong> {{ trip.arrival_time|time:"g:i A" }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-2">
+              <i class="bi bi-truck me-2"></i>
+              <strong>Vehicle:</strong> {{ trip.vehicle.registration_number }}
+            </p>
+            <p class="mb-2">
+              <i class="bi bi-currency-dollar me-2"></i>
+              <strong>Price:</strong> ${{ trip.price }} per seat
+            </p>
+            <p class="mb-2">
+              <i class="bi bi-people me-2"></i>
+              <strong>Capacity:</strong> {{ trip.max_passengers }} passengers
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {% if trip.status == 'Upcoming' or trip.status == 'Ongoing' %}
+      <div class="card-footer">
+        {% if trip.status == 'Upcoming' %}
+        <a
+          href="{% url 'core:driver_start_trip' trip.id %}"
+          class="btn btn-success"
+        >
+          <i class="bi bi-play-fill me-1"></i> Start Trip
+        </a>
+        {% elif trip.status == 'Ongoing' %}
+        <a
+          href="{% url 'core:driver_complete_trip' trip.id %}"
+          class="btn btn-primary"
+        >
+          <i class="bi bi-check-lg me-1"></i> Complete Trip
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Passenger List -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-people me-2"></i>Passengers ({{ bookings|length }})
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        {% if bookings %}
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Passenger</th>
+              <th>Contact</th>
+              <th>Seats</th>
+              <th>Special Requests</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in bookings %}
+            <tr>
+              <td>{{ booking.passenger.get_full_name }}</td>
+              <td>
+                <a href="mailto:{{ booking.passenger.email }}"
+                  >{{ booking.passenger.email }}</a
+                >
+              </td>
+              <td>{{ booking.seats_booked }}</td>
+              <td>
+                {% if booking.special_requests %} {{
+                booking.special_requests|truncatewords:5 }} {% else %}
+                <span class="text-muted">None</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if booking.status == 'Confirmed' %}
+                <span class="badge bg-success">Confirmed</span>
+                {% elif booking.status == 'Completed' %}
+                <span class="badge bg-primary">Completed</span>
+                {% else %}
+                <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-person-x" style="font-size: 2rem"></i>
+          <p class="mt-2 mb-0">No passengers booked yet</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <!-- Stats Card -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Trip Statistics</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <span>Total Seats:</span>
+          <strong>{{ trip.max_passengers }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <span>Booked Seats:</span>
+          <strong>{{ trip.max_passengers|add:"-trip.available_seats" }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <span>Available Seats:</span>
+          <strong
+            class="{% if trip.available_seats == 0 %}text-danger{% else %}text-success{% endif %}"
+          >
+            {{ trip.available_seats }}
+          </strong>
+        </div>
+        <div class="progress mb-3">
+          {% widthratio trip.available_seats trip.max_passengers 100 as
+          available_percent %}
+          <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: {% widthratio trip.max_passengers|add:'-trip.available_seats' trip.max_passengers 100 %}%"
+          ></div>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-between">
+          <span>Potential Revenue:</span>
+          <strong class="text-success">${{ trip.price }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Info -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Vehicle Information</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-2">
+          <strong>Registration:</strong> {{ trip.vehicle.registration_number }}
+        </p>
+        <p class="mb-2">
+          <strong>Type:</strong> {{ trip.vehicle.get_vehicle_type_display }}
+        </p>
+        <p class="mb-2">
+          <strong>Make/Model:</strong> {{ trip.vehicle.make }} {{
+          trip.vehicle.model }}
+        </p>
+        <p class="mb-0">
+          <strong>Capacity:</strong> {{ trip.vehicle.capacity }} passengers
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

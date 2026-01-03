@@ -1,0 +1,160 @@
+{% extends 'base.html' %} 
+{% block title %}My Bookings - Smart Transport{%endblock %} 
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-ticket-detailed me-2"></i>My Bookings</h1>
+  <a href="{% url 'core:trip_search' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> Book New Trip
+  </a>
+</div>
+
+<!-- Filter Tabs -->
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <a
+      class="nav-link {% if not status %}active{% endif %}"
+      href="{% url 'core:my_bookings' %}"
+    >
+      All Bookings
+    </a>
+  </li>
+  <li class="nav-item">
+    <a
+      class="nav-link {% if status == 'Confirmed' %}active{% endif %}"
+      href="?status=Confirmed"
+    >
+      Confirmed
+    </a>
+  </li>
+  <li class="nav-item">
+    <a
+      class="nav-link {% if status == 'Completed' %}active{% endif %}"
+      href="?status=Completed"
+    >
+      Completed
+    </a>
+  </li>
+  <li class="nav-item">
+    <a
+      class="nav-link {% if status == 'Cancelled' %}active{% endif %}"
+      href="?status=Cancelled"
+    >
+      Cancelled
+    </a>
+  </li>
+</ul>
+
+{% if bookings %}
+<div class="row">
+  {% for booking in bookings %}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <strong
+          >{{ booking.trip.start_location }} → {{ booking.trip.end_location }}</strong
+        >
+        {% if booking.status == 'Confirmed' %}
+        <span class="badge bg-success">Confirmed</span>
+        {% elif booking.status == 'Completed' %}
+        <span class="badge bg-primary">Completed</span>
+        {% else %}
+        <span class="badge bg-danger">Cancelled</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="mb-2">
+          <i class="bi bi-calendar-event me-2"></i>
+          {{ booking.trip.departure_time|date:"D, M d, Y" }}
+        </div>
+        <div class="mb-2">
+          <i class="bi bi-clock me-2"></i>
+          {{ booking.trip.departure_time|time:"g:i A" }} - {{booking.trip.arrival_time|time:"g:i A" }}
+        </div>
+        <div class="mb-2">
+          <i class="bi bi-people me-2"></i>
+          {{ booking.seats_booked }} seat(s)
+        </div>
+        <div class="mb-2">
+          <i class="bi bi-currency-dollar me-2"></i>
+          <strong>${{ booking.total_price }}</strong>
+        </div>
+        {% if booking.special_requests %}
+        <div class="mb-2">
+          <i class="bi bi-chat-text me-2"></i>
+          <small class="text-muted"
+            >{{ booking.special_requests|truncatewords:10 }}</small
+          >
+        </div>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-transparent">
+         {% if booking.status == 'Confirmed' and booking.trip.status == 'Upcoming' %}
+        <a
+          href="{% url 'core:cancel_booking' booking.id %}"
+          class="btn btn-outline-danger btn-sm"
+        >
+          <i class="bi bi-x-circle me-1"></i> Cancel
+        </a>
+        {% elif booking.status == 'Completed' and not booking.is_rated %}
+        <a
+          href="{% url 'core:rate_trip' booking.id %}"
+          class="btn btn-warning btn-sm"
+        >
+          <i class="bi bi-star me-1"></i> Rate Trip
+        </a>
+        {% elif booking.is_rated %}
+        <span class="text-muted">
+          <i class="bi bi-check-circle text-success me-1"></i> Rated
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if bookings.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if bookings.has_previous %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="?{% if status %}status={{ status }}&{% endif %}page={{ bookings.previous_page_number }}"
+        >Previous</a
+      >
+    </li>
+    {% endif %} {% for num in bookings.paginator.page_range %}
+    <li class="page-item {% if bookings.number == num %}active{% endif %}">
+      <a
+        class="page-link"
+        href="?{% if status %}status={{ status }}&{% endif %}page={{ num }}"
+        >{{ num }}</a
+      >
+    </li>
+    {% endfor %} {% if bookings.has_next %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="?{% if status %}status={{ status }}&{% endif %}page={{ bookings.next_page_number }}"
+        >Next</a
+      >
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %} {% else %}
+<div class="text-center py-5">
+  <i class="bi bi-ticket text-muted" style="font-size: 4rem"></i>
+  <h4 class="mt-3 text-muted">No bookings found</h4>
+  <p class="text-muted">
+    Start exploring available trips and make your first booking!
+  </p>
+  <a href="{% url 'core:trip_search' %}" class="btn btn-primary">
+    <i class="bi bi-search me-1"></i> Search Trips
+  </a>
+</div>
+{% endif %} {% endblock %}

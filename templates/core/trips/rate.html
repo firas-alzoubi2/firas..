@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Rate Trips - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-star me-2"></i>Rate Your Trip</h1>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <!-- Trip Summary -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Trip Summary</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-2">
+              <strong
+                >{{ booking.trip.origin }} → {{ booking.trip.destination
+                }}</strong
+              >
+            </p>
+            <p class="mb-2">
+              <i class="bi bi-calendar me-2"></i>
+              {{ booking.trip.scheduled_date|date:"D, M d, Y" }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-2">
+              <i class="bi bi-person me-2"></i>
+              Driver:
+              <strong>{{ booking.trip.driver.user.get_full_name }}</strong>
+            </p>
+            <p class="mb-2">
+              <i class="bi bi-truck me-2"></i>
+              {{ booking.trip.vehicle.registration_number }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating Form -->
+    <div class="card">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-star-fill me-2"></i>Your Rating</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="form-label">Rate your experience</label>
+            <div class="star-rating">
+              {% for i in "12345" %} <input type="radio" name="rating" value="{{
+              i }}" id="star{{ i }}" {% if forloop.counter == 5 %}checked{%
+              endif %}>
+              <label for="star{{ i }}" class="star-label">
+                <i class="bi bi-star-fill"></i>
+              </label>
+              {% endfor %}
+            </div>
+            <div class="form-text mt-2">1 = Poor, 5 = Excellent</div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Your Comment (Optional)</label>
+            <textarea
+              name="comment"
+              class="form-control"
+              rows="4"
+              placeholder="Share your experience with this trip..."
+            ></textarea>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning btn-lg">
+              <i class="bi bi-check-circle me-1"></i> Submit Rating
+            </button>
+            <a
+              href="{% url 'core:my_bookings' %}"
+              class="btn btn-secondary btn-lg"
+            >
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    font-size: 2rem;
+  }
+
+  .star-rating input {
+    display: none;
+  }
+
+  .star-rating .star-label {
+    color: #ddd;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: color 0.2s;
+  }
+
+  .star-rating input:checked ~ .star-label,
+  .star-rating .star-label:hover,
+  .star-rating .star-label:hover ~ .star-label {
+    color: #ffc107;
+  }
+
+  .star-rating input:checked + .star-label,
+  .star-rating input:checked + .star-label ~ .star-label {
+    color: #ffc107;
+  }
+</style>
+{% endblock %}

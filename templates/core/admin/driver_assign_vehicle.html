@@ -1,0 +1,72 @@
+{% extends 'base.html' %} 
+{% block title %}Assign Vehicle - Smart Transport{%endblock %} 
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-truck me-2"></i>Assign Vehicle to Driver</h1>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        Driver: <strong>{{ driver.user.username }}</strong>
+        {% if driver.vehicle %}
+        <br /><small class="text-muted"
+          >Currently assigned: {{ driver.vehicle.plate_number }}</small
+        >
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="form-label">Select Vehicle</label>
+
+            <div class="list-group">
+              <label class="list-group-item">
+                <input
+                  class="form-check-input me-2"
+                  type="radio"
+                  name="vehicle_id"
+                  value=""
+                />
+                <span class="text-muted">No vehicle (unassign)</span>
+              </label>
+
+              {% for vehicle in vehicles %}
+              <label class="list-group-item">
+                <input class="form-check-input me-2" type="radio"
+                name="vehicle_id" value="{{ vehicle.id }}" {% if driver.vehicle
+                and driver.vehicle.id == vehicle.id %}checked{% endif %}>
+                <strong>{{ vehicle.plate_number }}</strong> - {{ vehicle.brand
+                }} {{ vehicle.model }}
+                <span class="badge bg-secondary ms-2"
+                  >{{ vehicle.capacity }} seats</span
+                >
+              </label>
+              {% empty %}
+              <div class="list-group-item text-muted">
+                No available vehicles
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a
+              href="{% url 'core:driver_list' %}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>Assign Vehicle
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

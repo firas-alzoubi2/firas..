@@ -1,0 +1,138 @@
+{% extends 'base.html' %} {% block title %}{{ trip.trip_name }} - Smart
+Transport{% endblock %} {% block content %}
+<div class="container py-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'core:trip_search' %}">Trips</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ trip.trip_name }}
+      </li>
+    </ol>
+  </nav>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h4 class="mb-0">
+            {{ trip.start_location }} <i class="bi bi-arrow-right mx-2"></i> {{
+            trip.end_location }}
+          </h4>
+          <span class="badge bg-light text-primary"
+            >{{ trip.get_status_display }}</span
+          >
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5 class="text-muted mb-3">Departure</h5>
+              <p class="h4 mb-1">{{ trip.departure_time|time:"g:i A" }}</p>
+              <p class="text-muted">
+                {{ trip.departure_time|date:"l, F d, Y" }}
+              </p>
+              <p class="mb-0">
+                <i class="bi bi-geo-alt text-primary me-2"></i>{{
+                trip.start_location }}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <h5 class="text-muted mb-3">Arrival</h5>
+              <p class="h4 mb-1">{{ trip.arrival_time|time:"g:i A" }}</p>
+              <p class="text-muted">{{ trip.arrival_time|date:"l, F d, Y" }}</p>
+              <p class="mb-0">
+                <i class="bi bi-geo-alt text-primary me-2"></i>{{
+                trip.end_location }}
+              </p>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="mb-3">
+                <i class="bi bi-truck me-2"></i>Vehicle Information
+              </h6>
+              <p class="mb-1">
+                <strong>Vehicle:</strong> {{ trip.vehicle.brand }} {{
+                trip.vehicle.model }}
+              </p>
+              <p class="mb-1">
+                <strong>Plate Number:</strong> {{ trip.vehicle.plate_number }}
+              </p>
+              <p class="mb-0">
+                <strong>Type:</strong> {{ trip.vehicle.get_vehicle_type_display
+                }}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-3">
+                <i class="bi bi-person-badge me-2"></i>Driver Information
+              </h6>
+              <p class="mb-1">
+                <strong>Name:</strong> {{ trip.driver.user.get_full_name }}
+              </p>
+              <p class="mb-0">
+                <strong>Rating:</strong>
+                {% if trip.driver.average_rating %}
+                <span class="text-warning"
+                  ><i class="bi bi-star-fill"></i> {{
+                  trip.driver.average_rating|floatformat:1 }}</span
+                >
+                {% else %}
+                <span class="text-muted">Not rated yet</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Booking Summary</h5>
+
+          <div class="d-flex justify-content-between mb-3">
+            <span>Price per seat</span>
+            <span class="h5 text-success mb-0">${{ trip.price }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-4">
+            <span>Available Seats</span>
+            <span class="badge bg-info">{{ trip.available_seats }}</span>
+          </div>
+
+          {% if existing_booking %}
+          <div class="alert alert-success mb-3">
+            <i class="bi bi-check-circle-fill me-2"></i>You have booked this
+            trip.
+          </div>
+          <a
+            href="{% url 'core:my_bookings' %}"
+            class="btn btn-outline-primary w-100"
+            >View My Bookings</a
+          >
+          {% elif trip.available_seats > 0 and trip.status == 'Upcoming' %}
+          <a
+            href="{% url 'core:trip_book' trip.id %}"
+            class="btn btn-primary w-100 btn-lg"
+          >
+            <i class="bi bi-ticket-perforated me-2"></i>Book Now
+          </a>
+          {% else %}
+          <button class="btn btn-secondary w-100" disabled>
+            Not Available
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

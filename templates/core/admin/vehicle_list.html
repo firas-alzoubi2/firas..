@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Vehicle Management - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-truck me-2"></i>Vehicle Management</h1>
+    <a href="{% url 'core:vehicle_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add Vehicle
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control" placeholder="Search by plate number, brand, or model" value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Available" {% if status_filter == 'Available' %}selected{% endif %}>Available</option>
+                    <option value="In Use" {% if status_filter == 'In Use' %}selected{% endif %}>In Use</option>
+                    <option value="Maintenance" {% if status_filter == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                    <option value="Retired" {% if status_filter == 'Retired' %}selected{% endif %}>Retired</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Vehicles Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Plate Number</th>
+                    <th>Vehicle</th>
+                    <th>Type</th>
+                    <th>Capacity</th>
+                    <th>Rating</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td><strong>{{ vehicle.plate_number }}</strong></td>
+                    <td>{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.year }})</td>
+                    <td>{{ vehicle.get_vehicle_type_display }}</td>
+                    <td>{{ vehicle.capacity }} seats</td>
+                    <td>
+                        {% if vehicle.average_rating %}
+                        <span class="rating-stars">
+                            <i class="bi bi-star-fill"></i> {{ vehicle.average_rating }}
+                        </span>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge status-{% if vehicle.status == 'Available' %}available{% elif vehicle.status == 'In Use' %}ongoing{% else %}cancelled{% endif %}">
+                            {{ vehicle.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'core:vehicle_edit' vehicle.id %}" class="btn btn-outline-primary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'core:vehicle_delete' vehicle.id %}" class="btn btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No vehicles found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if vehicles.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if vehicles.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ vehicles.previous_page_number }}&q={{ query }}&status={{ status_filter }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in vehicles.paginator.page_range %}
+        <li class="page-item {% if vehicles.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&status={{ status_filter }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if vehicles.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ vehicles.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

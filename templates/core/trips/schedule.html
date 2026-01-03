@@ -1,0 +1,101 @@
+{% extends 'base.html' %} 
+{% block title %}Trip Schedule - SmartTransport{%endblock %} 
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-calendar3 me-2"></i>Trip Schedule</h1>
+</div>
+
+<!-- Week Navigation -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <a href="?week={{ prev_week|date:'Y-m-d' }}" class="btn btn-outline-primary">
+    <i class="bi bi-chevron-left me-1"></i> Previous Week
+  </a>
+  <h4 class="mb-0">
+    {{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}
+  </h4>
+  <a href="?week={{ next_week|date:'Y-m-d' }}" class="btn btn-outline-primary">
+    Next Week <i class="bi bi-chevron-right ms-1"></i>
+  </a>
+</div>
+
+<!-- Schedule Grid -->
+<div class="table-responsive">
+  <table class="table table-bordered schedule-table">
+    <thead class="table-light">
+      <tr>
+        <th style="width: 100px">Time</th>
+        {% for day in week_days %}
+        <th class="text-center {% if day == today %}table-primary{% endif %}">
+          <div class="fw-bold">{{ day|date:"D" }}</div>
+          <small>{{ day|date:"M d" }}</small>
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for hour in hours %}
+      <tr>
+        <td class="text-muted small">{{ hour }}</td>
+        {% for day in week_days %}
+        <td class="schedule-cell {% if day == today %}bg-light{% endif %}">
+          {% for trip in trips %}
+            {% if trip.departure_time.date == day and trip.departure_time|time:"H" == hour|slice:":2" %}
+          <div
+            class="trip-item {% if trip.status == 'Upcoming' %}bg-primary{% elif trip.status == 'Ongoing' %}bg-success{% else %}bg-secondary{% endif %} text-white rounded p-2 mb-1"
+          >
+            <small class="d-block">
+              <strong
+                >{{ trip.start_location }} → {{ trip.end_location }}</strong
+              >
+            </small>
+            <small>{{ trip.departure_time|time:"g:i A" }}</small>
+            <small class="d-block">{{ trip.available_seats }} seats left</small>
+          </div>
+          {% endif %} {% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Legend -->
+<div class="mt-4">
+  <h6>Legend</h6>
+  <div class="d-flex gap-3">
+    <span><span class="badge bg-primary">&nbsp;&nbsp;</span> Upcoming</span>
+    <span><span class="badge bg-success">&nbsp;&nbsp;</span> Ongoing</span>
+    <span
+      ><span class="badge bg-secondary">&nbsp;&nbsp;</span>
+      Completed/Cancelled</span
+    >
+  </div>
+</div>
+
+<style>
+  .schedule-table {
+    table-layout: fixed;
+  }
+
+  .schedule-table th,
+  .schedule-table td {
+    vertical-align: top;
+    min-width: 120px;
+  }
+
+  .schedule-cell {
+    height: 80px;
+    padding: 4px !important;
+  }
+
+  .trip-item {
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .trip-item:hover {
+    opacity: 0.9;
+  }
+</style>
+{% endblock %}

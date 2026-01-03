@@ -1,0 +1,59 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% block title %}Login -
+Smart Transport{% endblock %} {% block auth_content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="text-center mb-4">
+      <i class="bi bi-bus-front text-primary" style="font-size: 3rem"></i>
+      <h2 class="mt-3 mb-1">Smart Transport</h2>
+      <p class="text-muted">Sign in to your account</p>
+    </div>
+
+    {% if messages %} {% for message in messages %}
+    <div
+      class="alert {{ message.tags }} alert-dismissible fade show"
+      role="alert"
+    >
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %} {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="id_username" class="form-label">Email</label>
+        {{ form.username }} {% if form.username.errors %}
+        <div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_password" class="form-label">Password</label>
+        {{ form.password }} {% if form.password.errors %}
+        <div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary w-100 py-2 mt-3">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+      </button>
+    </form>
+
+    <div class="text-center mt-4">
+      <p class="text-muted mb-0">
+        Don't have an account?
+        <a href="{% url 'core:register' %}" class="text-decoration-none"
+          >Register here</a
+        >
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

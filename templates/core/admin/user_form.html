@@ -1,0 +1,93 @@
+{% extends 'base.html' %} 
+{% block title %}User - Smart Transport{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>
+    <i
+      class="bi bi-person-{% if action == 'Create' %}plus{% else %}gear{% endif %} me-2"
+    ></i
+    >{{ action }} User
+  </h1>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id_username" class="form-label">Username</label>
+              {{ form.username }} {% if form.username.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.username.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_email" class="form-label">Email</label>
+              {{ form.email }} {% if form.email.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.email.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id_phone" class="form-label">Phone</label>
+              {{ form.phone }} {% if form.phone.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.phone.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_user_type" class="form-label">User Type</label>
+              {{ form.user_type }} {% if form.user_type.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.user_type.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="id_password" class="form-label"
+              >Password {% if action == 'Edit' %}(leave blank to keep current){%
+              endif %}</label
+            >
+            {{ form.password }} {% if form.password.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.password.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3 form-check">
+            {{ form.is_active }}
+            <label class="form-check-label" for="id_is_active">Active</label>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a
+              href="{% url 'core:user_list' %}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>{{ action }} User
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

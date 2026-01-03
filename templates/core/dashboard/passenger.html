@@ -1,0 +1,158 @@
+{% extends 'base.html' %} {% block title %}Dashboard -
+SmartTransport{%endblock%} {% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-speedometer2 me-2"></i>Welcome, {{ user.username }}!</h1>
+</div>
+
+<!-- Stats -->
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="stat-value">{{ upcoming_bookings|length }}</div>
+        <div class="stat-label">
+          <i class="bi bi-calendar-check me-1"></i>Upcoming Trips
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card stat-card success">
+      <div class="card-body">
+        <div class="stat-value">{{ completed_bookings }}</div>
+        <div class="stat-label">
+          <i class="bi bi-check-circle me-1"></i>Completed Trips
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mb-4">
+  <div class="card-header">
+    <i class="bi bi-lightning-charge me-2"></i>Quick Actions
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a
+          href="{% url 'core:trip_search' %}"
+          class="btn btn-primary w-100 py-3"
+        >
+          <i class="bi bi-search me-2"></i>Find a Trip
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a
+          href="{% url 'core:my_bookings' %}"
+          class="btn btn-outline-primary w-100 py-3"
+        >
+          <i class="bi bi-ticket-perforated me-2"></i>My Bookings
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a
+          href="{% url 'core:trip_schedule' %}"
+          class="btn btn-outline-secondary w-100 py-3"
+        >
+          <i class="bi bi-calendar3 me-2"></i>Trip Schedule
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upcoming Bookings -->
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <span
+          ><i class="bi bi-calendar-event me-2"></i>Your Upcoming Trips</span
+        >
+        <a
+          href="{% url 'core:my_bookings' %}"
+          class="btn btn-sm btn-outline-primary"
+          >View All</a
+        >
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          {% for booking in upcoming_bookings %}
+          <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">{{ booking.trip.trip_name }}</h6>
+              <small class="text-muted"
+                >{{ booking.seats_booked }} seat(s)</small
+              >
+            </div>
+            <p class="mb-1 small">
+              <i class="bi bi-geo-alt me-1"></i>{{ booking.trip.start_location}} → {{ booking.trip.end_location }}
+            </p>
+            <small class="text-muted">
+              <i class="bi bi-clock me-1"></i>
+              {{ booking.trip.departure_time|date:"M d,Y H:i" }}
+
+            </small>
+          </div>
+          {% empty %}
+          <div class="list-group-item text-center text-muted py-4">
+            No upcoming trips booked
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Available Trips -->
+  <div class="col-md-6">
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <span><i class="bi bi-map me-2"></i>Available Trips</span>
+        <a
+          href="{% url 'core:trip_search' %}"
+          class="btn btn-sm btn-outline-primary"
+          >Browse All</a
+        >
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          {% for trip in available_trips %}
+          <a
+            href="{% url 'core:trip_detail' trip.id %}"
+            class="list-group-item list-group-item-action"
+          >
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">{{ trip.trip_name }}</h6>
+              <span class="badge bg-success">${{ trip.price }}</span>
+            </div>
+            <p class="mb-1 small">
+              <i class="bi bi-geo-alt me-1"></i>{{ trip.start_location }} → {{ trip.end_location }}
+            </p>
+            <div class="d-flex justify-content-between">
+              <small class="text-muted">
+                <i class="bi bi-clock me-1"></i>{{ trip.departure_time|time:"g:i A" }}
+              </small>
+              <small class="text-success">
+                <i class="bi bi-person me-1"></i>{{ trip.available_seats }}
+                seats
+              </small>
+            </div>
+          </a>
+          {% empty %}
+          <div class="list-group-item text-center text-muted py-4">
+            No trips available at the moment
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

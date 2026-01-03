@@ -1,0 +1,141 @@
+{% extends 'base.html' %} {% block title %}Book Trip - Smart
+Transport{%endblock%} {% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-ticket me-2"></i>Book Trip</h1>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Trip Details -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Trip Details</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>{{ trip.origin }} → {{ trip.destination }}</h4>
+            <hr />
+            <div class="mb-2">
+              <i class="bi bi-calendar-event me-2"></i>
+              <strong>Date:</strong> {{ trip.scheduled_date|date:"l, F d, Y" }}
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-clock me-2"></i>
+              <strong>Departure:</strong> {{ trip.departure_time|time:"g:i A" }}
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-clock-fill me-2"></i>
+              <strong>Arrival:</strong> {{ trip.arrival_time|time:"g:i A" }}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-2">
+              <i class="bi bi-truck me-2"></i>
+              <strong>Vehicle:</strong> {{ trip.vehicle.registration_number }}
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-person me-2"></i>
+              <strong>Driver:</strong> {{ trip.driver.user.get_full_name }} {%if
+              trip.driver.average_rating %}
+              <span class="text-warning ms-1">
+                <i class="bi bi-star-fill"></i> {{
+                trip.driver.average_rating|floatformat:1 }}
+              </span>
+              {% endif %}
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-people me-2"></i>
+              <strong>Available Seats:</strong>
+              <span class="badge bg-success">{{ trip.available_seats }}</span>
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-currency-dollar me-2"></i>
+              <strong>Price per Seat:</strong>
+              <span class="h5 text-success">${{ trip.price }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Booking Details</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label">Number of Seats</label>
+            {{ form.seats }}
+            <div class="form-text">
+              Maximum {{ trip.available_seats }} seats available
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-circle me-1"></i> Confirm Booking
+            </button>
+            <a
+              href="{% url 'core:trip_search' %}"
+              class="btn btn-secondary btn-lg"
+            >
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <!-- Price Summary -->
+    <div class="card sticky-top" style="top: 80px">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Price Summary</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span>Price per seat:</span>
+          <span>${{ trip.price }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Number of seats:</span>
+          <span id="seatCount">1</span>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-between">
+          <strong>Total:</strong>
+          <strong class="h4 text-success" id="totalPrice"
+            >${{ trip.price }}</strong
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const seatsInput = document.getElementById('id_seats');
+      const seatCountEl = document.getElementById('seatCount');
+      const totalPriceEl = document.getElementById('totalPrice');
+      const pricePerSeat = {{ trip.price }};
+
+      if (seatsInput) {
+          seatsInput.addEventListener('change', function() {
+              const seats = parseInt(this.value) || 1;
+              seatCountEl.textContent = seats;
+              totalPriceEl.textContent = '$' + (seats * pricePerSeat).toFixed(2);
+          });
+
+          // Trigger change event on load to set initial values
+          seatsInput.dispatchEvent(new Event('change'));
+      }
+  });
+</script>
+{% endblock %}

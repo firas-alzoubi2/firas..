@@ -1,0 +1,145 @@
+{% extends 'base.html' %} 
+{% block title %}Trip - Smart Transport{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-map me-2"></i>{{ action }} Trip</h1>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="id_trip_name" class="form-label">Trip Name</label>
+            {{ form.trip_name }} {% if form.trip_name.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.trip_name.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id_driver" class="form-label">Driver</label>
+              {{ form.driver }} {% if form.driver.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.driver.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_vehicle" class="form-label">Vehicle</label>
+              {{ form.vehicle }} {% if form.vehicle.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.vehicle.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id_start_location" class="form-label"
+                >Start Location</label
+              >
+              {{ form.start_location }} {% if form.start_location.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.start_location.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_end_location" class="form-label"
+                >End Location</label
+              >
+              {{ form.end_location }} {% if form.end_location.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.end_location.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id_departure_time" class="form-label"
+                >Departure Time</label
+              >
+              {{ form.departure_time }} {% if form.departure_time.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.departure_time.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_arrival_time" class="form-label"
+                >Arrival Time</label
+              >
+              {{ form.arrival_time }} {% if form.arrival_time.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.arrival_time.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="id_price" class="form-label">Price ($)</label>
+              {{ form.price }} {% if form.price.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.price.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="id_available_seats" class="form-label"
+                >Available Seats</label
+              >
+              {{ form.available_seats }} {% if form.available_seats.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.available_seats.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="id_status" class="form-label">Status</label>
+              {{ form.status }} {% if form.status.errors %}
+              <div class="invalid-feedback d-block">
+                {{ form.status.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between">
+            <a
+              href="{% url 'core:trip_list_admin' %}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>{{ action }} Trip
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

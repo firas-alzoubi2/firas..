@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}My Trips - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-car-front me-2"></i>My Trips</h1>
+</div>
+
+<!-- Filter Tabs -->
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <a
+      class="nav-link {% if not status %}active{% endif %}"
+      href="{% url 'core:driver_trips' %}"
+    >
+      All Trips
+    </a>
+  </li>
+  <li class="nav-item">
+    <a
+      class="nav-link {% if status == 'Upcoming' %}active{% endif %}"
+      href="?status=Upcoming"
+    >
+      Upcoming
+    </a>
+  </li>
+  <li class="nav-item">
+    <a
+      class="nav-link {% if status == 'Ongoing' %}active{% endif %}"
+      href="?status=Ongoing"
+    >
+      Ongoing
+    </a>
+  </li>
+  <li class="nav-item">
+    <a
+      class="nav-link {% if status == 'Completed' %}active{% endif %}"
+      href="?status=Completed"
+    >
+      Completed
+    </a>
+  </li>
+</ul>
+
+{% if trips %}
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Route</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Bookings</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trip in trips %}
+      <tr>
+        <td>
+          <strong>{{ trip.origin }}</strong>
+          <i class="bi bi-arrow-right mx-2"></i>
+          <strong>{{ trip.destination }}</strong>
+        </td>
+        <td>{{ trip.scheduled_date|date:"M d, Y" }}</td>
+        <td>
+          {{ trip.departure_time|time:"g:i A" }} - {{
+          trip.arrival_time|time:"g:i A" }}
+        </td>
+        <td>
+          {% with
+          booked_seats=trip.max_passengers|add:"-"|add:trip.available_seats %}
+          {{ trip.max_passengers|add:"-trip.available_seats" }} / {{
+          trip.max_passengers }} {% endwith %}
+        </td>
+        <td>
+          {% if trip.status == 'Upcoming' %}
+          <span class="badge bg-info">Upcoming</span>
+          {% elif trip.status == 'Ongoing' %}
+          <span class="badge bg-success">Ongoing</span>
+          {% elif trip.status == 'Completed' %}
+          <span class="badge bg-secondary">Completed</span>
+          {% else %}
+          <span class="badge bg-danger">Cancelled</span>
+          {% endif %}
+        </td>
+        <td>
+          <a
+            href="{% url 'core:driver_trip_detail' trip.id %}"
+            class="btn btn-sm btn-outline-primary"
+          >
+            <i class="bi bi-eye"></i> View
+          </a>
+          {% if trip.status == 'Upcoming' %}
+          <a
+            href="{% url 'core:driver_start_trip' trip.id %}"
+            class="btn btn-sm btn-success"
+          >
+            <i class="bi bi-play-fill"></i> Start
+          </a>
+          {% elif trip.status == 'Ongoing' %}
+          <a
+            href="{% url 'core:driver_complete_trip' trip.id %}"
+            class="btn btn-sm btn-primary"
+          >
+            <i class="bi bi-check-lg"></i> Complete
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if trips.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if trips.has_previous %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="?{% if status %}status={{ status }}&{% endif %}page={{ trips.previous_page_number }}"
+        >Previous</a
+      >
+    </li>
+    {% endif %} {% for num in trips.paginator.page_range %}
+    <li class="page-item {% if trips.number == num %}active{% endif %}">
+      <a
+        class="page-link"
+        href="?{% if status %}status={{ status }}&{% endif %}page={{ num }}"
+        >{{ num }}</a
+      >
+    </li>
+    {% endfor %} {% if trips.has_next %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="?{% if status %}status={{ status }}&{% endif %}page={{ trips.next_page_number }}"
+        >Next</a
+      >
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %} {% else %}
+<div class="text-center py-5">
+  <i class="bi bi-car-front text-muted" style="font-size: 4rem"></i>
+  <h4 class="mt-3 text-muted">No trips assigned</h4>
+  <p class="text-muted">
+    You don't have any trips assigned yet. Please wait for the administrator to
+    schedule trips for you.
+  </p>
+</div>
+{% endif %} {% endblock %}

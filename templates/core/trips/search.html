@@ -1,0 +1,131 @@
+{% extends 'base.html' %} {% block title %}Search Trips -
+SmartTransport{%endblock %} {% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-search me-2"></i>Search Trips</h1>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{% url 'core:trip_search' %}">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label class="form-label">From</label>
+          {{ form.start_location }}
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">To</label>
+          {{ form.end_location }}
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Date</label>
+          {{ form.date }}
+        </div>
+        <div class="col-md-3 mb-3 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-search me-1"></i> Search
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Search Results -->
+{% if trips %}
+<h5 class="mb-3">Available Trips</h5>
+<div class="row">
+  {% for trip in trips %}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white">
+        <strong>{{ trip.start_location }} → {{ trip.end_location }}</strong>
+      </div>
+       <strong>{{ trip.start_location }} → {{ trip.end_location }}</strong>
+      <div class="card-body">
+        <div class="mb-2">
+          <i class="bi bi-calendar-event me-2"></i>
+          {{ trip.departure_time|date:"D, M d, Y" }}
+        </div>
+        <div class="mb-2">
+          <i class="bi bi-clock me-2"></i>
+          {{ trip.departure_time|time:"g:i A" }} - {{trip.arrival_time|time:"g:i A" }}
+        </div>
+        <div class="mb-2">
+          <i class="bi bi-truck me-2"></i>
+          {{ trip.vehicle.brand }} {{ trip.vehicle.model }} ({{trip.vehicle.plate_number }})
+        </div>
+        <div class="mb-2">
+          <i class="bi bi-person me-2"></i>
+          {{ trip.driver.user.get_full_name }} {% if trip.driver.average_rating %}
+          <span class="text-warning ms-1">
+             <i class="bi bi-star-fill"></i> {{ trip.driver.average_rating|floatformat:1 }}
+          </span>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <i class="bi bi-people me-2"></i>
+          <span
+            class="{% if trip.available_seats == 0 %}text-danger{%else %}text-success{% endif %}"
+          >
+            {{ trip.available_seats }} seats available
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="h5 mb-0 text-success">${{ trip.price }}</span>
+          {% if trip.available_seats > 0 %}
+          <a href="{% url 'core:trip_book' trip.id %}" class="btn btn-primary">
+            <i class="bi bi-ticket me-1"></i> Book Now
+          </a>
+          {% else %}
+          <button class="btn btn-secondary" disabled>Fully Booked</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if trips.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if trips.has_previous %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="?{% if form.origin.value %}origin={{ form.origin.value }}&{% endif %}{% if form.destination.value %}destination={{ form.destination.value }}&{% endif %}{% if form.date.value %}date={{ form.date.value }}&{% endif %}page={{ trips.previous_page_number }}"
+        >Previous</a
+      >
+    </li>
+    {% endif %} {% for num in trips.paginator.page_range %}
+    <li class="page-item {% if trips.number == num %}active{% endif %}">
+      <a
+        class="page-link"
+        href="?{% if form.origin.value %}origin={{ form.origin.value }}&{% endif %}{% if form.destination.value %}destination={{ form.destination.value }}&{% endif %}{% if form.date.value %}date={{ form.date.value }}&{% endif %}page={{ num }}"
+        >{{ num }}</a
+      >
+    </li>
+    {% endfor %} {% if trips.has_next %}
+    <li class="page-item">
+      <a
+        class="page-link"
+        href="?{% if form.origin.value %}origin={{ form.origin.value }}&{% endif %}{% if form.destination.value %}destination={{ form.destination.value }}&{% endif %}{% if form.date.value %}date={{ form.date.value }}&{% endif %}page={{ trips.next_page_number }}"
+        >Next</a
+      >
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %} {% elif request.GET %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>
+  No trips found matching your criteria. Try different search options.
+</div>
+{% else %}
+<div class="alert alert-secondary">
+  <i class="bi bi-search me-2"></i>
+  Enter your search criteria to find available trips.
+</div>
+{% endif %} {% endblock %}

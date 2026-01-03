@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Booking - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-x-circle me-2"></i>Cancel Booking</h1>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">Confirm Cancellation</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Warning!</strong> This action cannot be undone.
+        </div>
+
+        <h5>Booking Details</h5>
+        <table class="table table-borderless">
+          <tr>
+            <td class="text-muted">Trip:</td>
+            <td>
+              <strong
+                >{{ booking.trip.origin }} → {{ booking.trip.destination
+                }}</strong
+              >
+            </td>
+          </tr>
+          <tr>
+            <td class="text-muted">Date:</td>
+            <td>{{ booking.trip.scheduled_date|date:"l, F d, Y" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Time:</td>
+            <td>{{ booking.trip.departure_time|time:"g:i A" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Seats:</td>
+            <td>{{ booking.seats_booked }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Total Paid:</td>
+            <td>
+              <strong class="text-success">${{ booking.total_price }}</strong>
+            </td>
+          </tr>
+        </table>
+
+        <hr />
+
+        <p class="text-muted mb-4">
+          Are you sure you want to cancel this booking? Your seats will be
+          released for other passengers to book.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-x-circle me-1"></i> Yes, Cancel Booking
+            </button>
+            <a href="{% url 'core:my_bookings' %}" class="btn btn-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Keep Booking
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

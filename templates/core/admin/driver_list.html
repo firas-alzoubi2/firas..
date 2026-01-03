@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Management - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-person-badge me-2"></i>Driver Management</h1>
+    <a href="{% url 'core:driver_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i>Add Driver
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="q" class="form-control" placeholder="Search by name or license number" value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Available" {% if status_filter == 'Available' %}selected{% endif %}>Available</option>
+                    <option value="On Trip" {% if status_filter == 'On Trip' %}selected{% endif %}>On Trip</option>
+                    <option value="Off Duty" {% if status_filter == 'Off Duty' %}selected{% endif %}>Off Duty</option>
+                    <option value="Suspended" {% if status_filter == 'Suspended' %}selected{% endif %}>Suspended</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Drivers Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Driver</th>
+                    <th>License</th>
+                    <th>Vehicle</th>
+                    <th>Trips</th>
+                    <th>Rating</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for driver in drivers %}
+                <tr>
+                    <td>
+                        <strong>{{ driver.user.username }}</strong>
+                        <br><small class="text-muted">{{ driver.user.email }}</small>
+                    </td>
+                    <td>
+                        {{ driver.license_number }}
+                        <br><small class="text-muted">Exp: {{ driver.license_expiry|date:"M Y" }}</small>
+                    </td>
+                    <td>
+                        {% if driver.vehicle %}
+                        {{ driver.vehicle.plate_number }}
+                        {% else %}
+                        <span class="text-muted">Not assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ driver.total_trips }}</td>
+                    <td>
+                        {% if driver.average_rating %}
+                        <span class="rating-stars">
+                            <i class="bi bi-star-fill"></i> {{ driver.average_rating }}
+                        </span>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge status-{% if driver.status == 'Available' %}available{% elif driver.status == 'On Trip' %}ongoing{% else %}cancelled{% endif %}">
+                            {{ driver.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'core:driver_edit' driver.id %}" class="btn btn-outline-primary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'core:driver_assign_vehicle' driver.id %}" class="btn btn-outline-success" title="Assign Vehicle">
+                                <i class="bi bi-truck"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No drivers found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if drivers.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if drivers.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ drivers.previous_page_number }}&q={{ query }}&status={{ status_filter }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in drivers.paginator.page_range %}
+        <li class="page-item {% if drivers.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}&status={{ status_filter }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if drivers.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ drivers.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

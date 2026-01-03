@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Trip - Smart Transport{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-check-circle me-2"></i>Complete Trip</h1>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Confirm Trip Completion</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          Completing this trip will mark it as "Completed" and all confirmed
+          bookings will be marked as completed. Passengers will be able to rate
+          this trip.
+        </div>
+
+        <h5>Trip Summary</h5>
+        <table class="table table-borderless">
+          <tr>
+            <td class="text-muted">Route:</td>
+            <td><strong>{{ trip.origin }} → {{ trip.destination }}</strong></td>
+          </tr>
+          <tr>
+            <td class="text-muted">Date:</td>
+            <td>{{ trip.scheduled_date|date:"l, F d, Y" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Time:</td>
+            <td>
+              {{ trip.departure_time|time:"g:i A" }} - {{
+              trip.arrival_time|time:"g:i A" }}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-muted">Vehicle:</td>
+            <td>{{ trip.vehicle.registration_number }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Passengers Served:</td>
+            <td>
+              <span class="badge bg-success">
+                {{ trip.max_passengers|add:"-trip.available_seats" }} passengers
+              </span>
+            </td>
+          </tr>
+        </table>
+
+        <hr />
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-lg me-1"></i> Complete Trip
+            </button>
+            <a
+              href="{% url 'core:driver_trip_detail' trip.id %}"
+              class="btn btn-secondary btn-lg"
+            >
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

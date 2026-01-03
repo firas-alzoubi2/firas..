@@ -1,0 +1,200 @@
+{% extends 'base.html' %} 
+{% block title %}Admin Dashboard - Smart Transport{%endblock %} 
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">
+          <i class="bi bi-people me-1"></i>Total Users
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card success">
+      <div class="card-body">
+        <div class="stat-value">{{ total_drivers }}</div>
+        <div class="stat-label">
+          <i class="bi bi-person-badge me-1"></i>Drivers
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card warning">
+      <div class="card-body">
+        <div class="stat-value">{{ total_vehicles }}</div>
+        <div class="stat-label"><i class="bi bi-truck me-1"></i>Vehicles</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card danger">
+      <div class="card-body">
+        <div class="stat-value">{{ total_trips }}</div>
+        <div class="stat-label"><i class="bi bi-map me-1"></i>Total Trips</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card stat-card">
+      <div class="card-body">
+        <div class="stat-value text-primary">{{ upcoming_trips }}</div>
+        <div class="stat-label">
+          <i class="bi bi-calendar-event me-1"></i>Upcoming Trips
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card stat-card success">
+      <div class="card-body">
+        <div class="stat-value text-success">{{ active_trips }}</div>
+        <div class="stat-label">
+          <i class="bi bi-play-circle me-1"></i>Ongoing Trips
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Users -->
+  <div class="col-md-6">
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <span><i class="bi bi-people me-2"></i>Recent Users</span>
+        <a
+          href="{% url 'core:user_list' %}"
+          class="btn btn-sm btn-outline-primary"
+          >View All</a
+        >
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Type</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in recent_users %}
+            <tr>
+              <td>{{ user.username }}</td>
+              <td>
+                <span class="badge bg-secondary"
+                  >{{ user.get_user_type_display }}</span
+                >
+              </td>
+              <td>{{ user.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center text-muted">No users yet</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Bookings -->
+  <div class="col-md-6">
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <span><i class="bi bi-ticket-perforated me-2"></i>Recent Bookings</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Trip</th>
+              <th>User</th>
+              <th>Seats</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in recent_bookings %}
+            <tr>
+              <td>{{ booking.trip.trip_name|truncatechars:20 }}</td>
+              <td>{{ booking.user.username }}</td>
+              <td>{{ booking.seats_booked }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center text-muted">
+                No bookings yet
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-4 mt-2">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-lightning-charge me-2"></i>Quick Actions
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <a
+              href="{% url 'core:user_create' %}"
+              class="btn btn-outline-primary w-100"
+            >
+              <i class="bi bi-person-plus me-2"></i>Add User
+            </a>
+          </div>
+          <div class="col-md-3">
+            <a
+              href="{% url 'core:driver_create' %}"
+              class="btn btn-outline-success w-100"
+            >
+              <i class="bi bi-person-badge me-2"></i>Add Driver
+            </a>
+          </div>
+          <div class="col-md-3">
+            <a
+              href="{% url 'core:vehicle_create' %}"
+              class="btn btn-outline-warning w-100"
+            >
+              <i class="bi bi-truck me-2"></i>Add Vehicle
+            </a>
+          </div>
+          <div class="col-md-3">
+            <a
+              href="{% url 'core:trip_create' %}"
+              class="btn btn-outline-danger w-100"
+            >
+              <i class="bi bi-map me-2"></i>Create Trip
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
